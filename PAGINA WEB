@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>SistemPeHack - Tienda Oficial (PRO)</title>
+  <meta name="theme-color" content="#000000" />
+  <meta name="msapplication-navbutton-color" content="#000000" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <style>
+    /* --- ROOT COLORS --- */
+    :root{
+      --bg:#000;
+      --accent:#ff6a00;
+      --accent-2:#ffb374;
+      --accent-dark:#ff2e00;
+      --green:#25D366;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--accent-2);font-family:Inter,Segoe UI,Roboto,Arial,-apple-system;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+
+    /* --- SCROLLBAR (COLOR NARANJA–ROJO) --- */
+    ::-webkit-scrollbar{width:10px;height:10px}
+    ::-webkit-scrollbar-track{background:#000}
+    ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--accent),var(--accent-dark));border-radius:10px;box-shadow:0 0 8px rgba(255,110,0,0.28)}
+    ::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#ff7a1a,#ff3a1a)}
+
+    /* --- LAYOUT --- */
+    .wrap{max-width:1200px;margin:18px auto;padding:20px}
+    header{display:flex;align-items:center;gap:16px}
+    .logo{width:110px;position:relative;z-index:2;pointer-events:none}
+    h1{margin:0;font-size:22px;color:var(--accent)}
+    .subtitle{color:#cfa78a;font-size:13px}
+
+    .container{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:18px}
+    .card{background:#070707;border-radius:12px;padding:12px;border:1px solid rgba(255,106,0,0.08);display:flex;flex-direction:column;align-items:center;transition:transform .22s;overflow:hidden}
+    .card:hover{transform:translateY(-6px)}
+    .thumb{width:100%;aspect-ratio:1/1;border-radius:8px;overflow:hidden;border:1px solid rgba(255,106,0,0.06);}
+    .thumb img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
+    .card:hover .thumb img{transform:scale(1.05)}
+
+    .title{font-weight:800;color:var(--accent-2);margin-top:10px;text-align:center}
+    .desc{color:#d9b08a;font-size:13px;text-align:center;margin:6px 0}
+    .price{color:var(--accent);font-weight:800;font-size:18px}
+
+    .qty-box{display:flex;gap:10px;align-items:center;margin:10px 0}
+    .qty-btn{background:#0b0b0b;border:1px solid rgba(255,106,0,0.12);color:var(--accent);padding:6px 10px;border-radius:8px;cursor:pointer}
+    .qty-display{min-width:36px;text-align:center;color:#ffe2c2;font-weight:700}
+    .add-btn{background:linear-gradient(90deg,#ff4500,#ff7a00);border:none;padding:8px 12px;border-radius:8px;color:#041018;font-weight:800;cursor:pointer}
+    .add-btn:disabled{opacity:.45;cursor:not-allowed}
+
+    /* FLOATING CART */
+    .cartFloat{position:fixed;right:18px;bottom:18px;background:#070707;padding:10px;border-radius:10px;border:1px solid rgba(255,106,0,0.08);z-index:999;display:flex;gap:10px;align-items:center;cursor:pointer}
+    .badge{background:var(--accent);color:#000;padding:6px 10px;border-radius:8px;font-weight:800}
+
+    /* MODAL */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);z-index:995;padding:18px}
+    .boleta{width:100%;max-width:920px;background:#060606;border-radius:12px;padding:18px;border:1px solid rgba(255,106,0,0.12);color:#e9c79f}
+    .items{margin-top:12px;max-height:360px;overflow:auto}
+    .itemRow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed rgba(255,106,0,0.04)}
+    .qty-inline{display:flex;gap:8px;align-items:center}
+    .qty-inline-btn{background:#0b0b0b;border:1px solid rgba(255,106,0,0.18);color:var(--accent);padding:6px 10px;border-radius:8px;cursor:pointer}
+    .delBtn{background:transparent;border:1px solid rgba(255,40,40,0.12);color:#ff6a6a;padding:6px 8px;border-radius:8px;cursor:pointer}
+
+    .total{margin-top:12px;font-size:18px;color:var(--accent);font-weight:800}
+
+    /* DISCOUNT */
+    .discountRow{display:flex;gap:10px;align-items:center;margin-top:12px}
+    .discInput{flex:1;padding:10px;border-radius:8px;background:#0b0b0b;border:1px solid rgba(255,106,0,0.08);color:#fff}
+    .discInput.success{background:#002a0f;border-color:#00ff88;color:#00ff88}
+    .discMsg{font-weight:800;padding:6px 10px;border-radius:6px}
+    .discMsg.success{background:#001a0d;color:#00ff88}
+    .discMsg.error{background:#300;color:#ff9b9b}
+    .discApply{padding:10px 14px;border-radius:8px;border:none;background:#222;color:var(--accent);cursor:pointer}
+
+    /* PAYMENT */
+    .paymentPanel{display:flex;gap:12px;align-items:center;margin-top:14px;flex-wrap:wrap}
+    .payCard{background:rgba(255,255,255,0.02);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);display:flex;gap:12px;align-items:center}
+    .payCard img{width:120px;height:120px;border-radius:8px}
+
+    /* HACKER SCREEN */
+    #hackerScreen{position:fixed;inset:0;display:none;justify-content:center;align-items:center;background:#000;z-index:99999}
+    #hackerScreen img{width:100%;height:100%;object-fit:cover}
+    #hackerScreen .msg{position:absolute;top:16px;left:16px;color:#00ff88;font-family:monospace;font-weight:800}
+
+    /* FIRE POPUP */
+    #fireConfirm{display:none;position:fixed;inset:0;justify-content:center;align-items:center;background:rgba(0,0,0,0.86);backdrop-filter:blur(6px);z-index:100000}
+    #fireBox{position:relative;width:92%;max-width:420px;background:#0a0a0a;border-radius:14px;padding:20px;border:2px solid #ff3c00;box-shadow:0 0 30px rgba(255,60,0,0.18)}
+    /* fireFlames removed on purpose */
+    #fireText{color:#ffaa7a;font-family:Consolas,monospace;font-size:15px;margin-top:16px}
+
+    /* TOAST */
+    #toast{position:fixed;bottom:20px;right:20px;background:#020202;padding:12px 16px;color:var(--accent);border:1px solid rgba(255,110,0,0.2);border-radius:10px;font-weight:800;display:none;z-index:999999;opacity:0;transform:translateY(16px);transition:.28s}
+
+    /* fly root to prevent logo jumping */
+    #flyRoot{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:999990}
+
+    footer{margin-top:28px;text-align:center;color:#b68c66;font-size:13px}
+  </style>
+</head>
+<body>
+  <!-- container for flying clones (prevents logo from jumping) -->
+  <div id="flyRoot"></div>
+
+  <div class="wrap">
+    <header>
+      <img class="logo" src="https://i.pinimg.com/736x/c4/63/13/c46313c577f7364b395299de268d9611.jpg" alt="logo">
+      <div>
+        <h1>SistemPeHack</h1>
+        <div class="subtitle">Tienda Oficial — PRO</div>
+      </div>
+    </header>
+
+    <main>
+      <div id="productContainer" class="container"></div>
+    </main>
+
+    <footer>© <span id="year"></span> SISTEMPEH — Todos los derechos reservados</footer>
+  </div>
+
+  <!-- Floating cart -->
+  <div class="cartFloat" id="cartBox" title="Abrir carrito">
+    <div>🛒</div>
+    <div class="badge" id="cartCount">0</div>
+    <small id="cartTotalBadge">S/ 0.00</small>
+  </div>
+
+  <!-- Modal / receipt -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="boleta" role="dialog" aria-modal="true">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h2 id="boletaTitle">Boleta de compra</h2>
+          <div class="small">Precio unitario, cantidad y subtotal</div>
+        </div>
+        <div>
+          <button id="closeBtn" style="background:#111;border:1px solid rgba(255,106,0,0.08);padding:8px 10px;border-radius:8px;color:var(--accent);cursor:pointer">Cerrar</button>
+        </div>
+      </div>
+
+      <div class="items" id="items"></div>
+      <div class="total" id="totalLine">Total: S/ 0.00</div>
+
+      <div style="margin-top:12px">
+        <strong>Cupones / Promociones</strong>
+        <div class="discountRow">
+          <input id="discCode" class="discInput" placeholder="Código (ej: SAVE10)">
+          <button id="applyDisc" class="discApply">Aplicar</button>
+          <div id="discMsg" class="discMsg" aria-live="polite"></div>
+        </div>
+        <div style="font-size:12px;color:#cfa78a;margin-top:6px">Ejemplos: <b>SAVE10</b> (10%), <b>BLACK15</b> (S/15 fijo), <b>LIMITED5</b> (S/5, 3 usos)</div>
+      </div>
+
+      <div style="margin-top:14px">
+        <strong>Pago rápido</strong>
+        <div class="paymentPanel">
+          <div class="payCard">
+            <div>
+              <div style="font-weight:800;color:var(--accent)">YAPE</div>
+              <div style="font-size:13px;color:#cfa78a">N°: <span id="yapeNum">+51912345678</span></div>
+              <div style="font-size:13px;color:#cfa78a">Monto: <b id="yapeAmt">S/ 0.00</b></div>
+            </div>
+            <div><img id="yapeQR" class="qr" alt="QR Yape"></div>
+          </div>
+
+          <div class="payCard">
+            <div>
+              <div style="font-weight:800;color:var(--accent)">PLIN</div>
+              <div style="font-size:13px;color:#cfa78a">N°: <span id="plinNum">+51987654321</span></div>
+              <div style="font-size:13px;color:#cfa78a">Monto: <b id="plinAmt">S/ 0.00</b></div>
+            </div>
+            <div><img id="plinQR" class="qr" alt="QR Plin"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirmation block (shows fire popup when user clicks Yes) -->
+      <div style="margin-top:15px;padding:12px;border-radius:10px;background:#0b0b0b;border:1px solid rgba(255,106,0,0.08)">
+        <div style="color:#ffb374;font-size:15px;font-weight:700;margin-bottom:8px">⚠ Confirmación requerida — ¿Estás seguro?</div>
+        <div style="display:flex;gap:10px">
+          <button id="confirmYes" style="padding:10px 15px;border-radius:8px;background:var(--accent);border:none;color:#041018;font-weight:800;cursor:pointer">✔ Sí, continuar</button>
+          <button id="confirmNo" style="padding:10px 15px;border-radius:8px;background:#222;border:1px solid rgba(255,90,0,0.12);color:#ffb374;cursor:pointer">✖ No, cancelar</button>
+        </div>
+      </div>
+
+      <a id="buyNow" class="waBtn" href="#" target="_blank" style="display:block;margin-top:14px;background:var(--green);color:#04280f;padding:12px;border-radius:10px;font-weight:800;text-align:center">Comprar Ahora (WhatsApp)</a>
+    </div>
+  </div>
+
+  <!-- Hacker fullscreen screen (NO) -->
+  <div id="hackerScreen" aria-hidden="true">
+    <div class="msg">ACCESO CANCELADO — SESIÓN LIMITADA</div>
+    <img src="https://hiberhernandez.com/wp-content/uploads/2021/01/hackeado.jpg" alt="hackeado">
+  </div>
+
+   <!-- FIRE CONFIRM popup -->
+  <div id="fireConfirm" aria-hidden="true">
+    <div id="fireBox" role="dialog" aria-modal="true">
+      <!-- <div id="fireFlames" aria-hidden="true"></div>  eliminada la imagen -->
+      <h3 style="color:#ff8c4a;font-family:Consolas,monospace;margin:8px 0 0;font-size:20px">⚠ CONFIRMA TU COMPRA ⚠</h3>
+      <p id="fireText" style="color:#ffaa7a;font-family:Consolas,monospace;margin:10px 0 0">¿Estás seguro de proceder con esta compra? Aquí puedes poner el texto que quieras.</p>
+      <div style="margin-top:18px;display:flex;justify-content:center;gap:12px">
+        <button id="fireYes" style="padding:10px 14px;border-radius:8px;background:#ff5a00;border:none;color:#140800;font-weight:800;cursor:pointer">✔ Continuar</button>
+        <button id="fireNo" style="padding:10px 14px;border-radius:8px;background:#222;border:1px solid #ff8c4a;color:#ffb374;cursor:pointer">✖ Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" role="status" aria-live="polite">Mensaje</div>
+
+<script>
+/* ================= STATE ================= */
+const STORAGE_KEY = 'sph_full_v2';
+let products = [
+  { id:1, title:'YAPE FAKE', desc:'Yape Fake simular pagos', price:49.90, img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Icono_de_la_aplicaci%C3%B3n_Yape.png/250px-Icono_de_la_aplicaci%C3%B3n_Yape.png' },
+  { id:2, title:'BILLETE DE 100', desc:'Billete G5 de 100 soles', price:35.90, img:'https://e.noticias.americadigital.pe/ima/0/0/0/9/7/97508.jpg' },
+  { id:3, title:'BILLETE DE 50', desc:'Billete G5 de 50 soles', price:18.90, img:'https://i.pinimg.com/736x/2b/25/51/2b25511b5c9a8ed2e2af926350e2fb5f.jpg' },
+  { id:4, title:'CHIP ACTIVADO BITEL ', desc:'Chip irrastreable y privado ', price:14.90, img:'https://bitel.com.pe/upload/2005922/fck/rafael_mkt/chip_5g.png' },
+  { id:5, title:'SISTEMA OJO DE DIOS', desc:'Sistema con todos los datos ', price:89.90, img:'https://i.pinimg.com/736x/8c/f4/3a/8cf43aa94e628d1312583b9ee80e94c7.jpg' },
+  { id:6, title:'INTERBANK FAKE', desc:'Interbank fake simular pagos', price:49.90, img:'https://yt3.googleusercontent.com/eDR3T-NrNtPb8qhUDQGUYcUbP-TNyVq3Pp-6cGUWaIhtnbWJlGE9gbQrNJhG6GnSAhvCInpQGA=s900-c-k-c0x00ffffff-no-rj' },
+  { id:7, title:'BCP FAKE', desc:'Bcp fake simular pagos', price:39.90, img:'https://www.fabritec.pe/assets/media/logo-banco/logo-bcp.png' },
+  { id:8, title:'PROXIMAMENTE', desc:'Vuelos al 50% de descuento',datos:'%', price:50.00, img:'https://i.pinimg.com/736x/4d/e7/17/4de717d064535983ce8e35cbc9b11c0e.jpg' },
+  { id:9, title:'PROXIMAMENTE', desc:'Borrado de Requisitoria solo personas', price:1649.90, img:'https://www.tvperu.gob.pe/sites/default/files/styles/note/public/standard_tu_dato_tiene_recompensa_rq_alex_condori-08.png?itok=44UkiGel' },
+  { id:10, title:'PROXIMAMENTE', desc:'Borrado de denuncias solo personas PNP', price:299.00, img:'https://elperuano.pe/fotografia//thumbnail/2022/04/20/000158876M.jpg' }
+];
+
+const coupons = {
+  'SAVE10': { type:'percent', value:10, expires:'2099-12-31', uses:null },
+  'BLACK15': { type:'fixed', value:15, expires:'2099-12-31', uses:null },
+  'LIMITED5': { type:'fixed', value:5, expires:'2099-12-31', uses:3 }
+};
+
+let cart = {};
+let discount = { amount:0, type:null, code:null };
+let tempQty = {};
+let allowBuyNow = false;
+
+// DOM refs
+const productContainer = document.getElementById('productContainer');
+const cartCount = document.getElementById('cartCount');
+const cartTotalBadge = document.getElementById('cartTotalBadge');
+const cartBox = document.getElementById('cartBox');
+const modal = document.getElementById('modal');
+const itemsEl = document.getElementById('items');
+const totalLine = document.getElementById('totalLine');
+const discCode = document.getElementById('discCode');
+const applyDisc = document.getElementById('applyDisc');
+const discMsg = document.getElementById('discMsg');
+const buyNow = document.getElementById('buyNow');
+const closeBtn = document.getElementById('closeBtn');
+const confirmYes = document.getElementById('confirmYes');
+const confirmNo = document.getElementById('confirmNo');
+const hackerScreen = document.getElementById('hackerScreen');
+const fireConfirm = document.getElementById('fireConfirm');
+const fireYes = document.getElementById('fireYes');
+const fireNo = document.getElementById('fireNo');
+const fireText = document.getElementById('fireText');
+const toastEl = document.getElementById('toast');
+const flyRoot = document.getElementById('flyRoot');
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ---------- persistence ---------- */
+function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify({ cart, discount, coupons })); }catch(e){} }
+function loadState(){ try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw){ const parsed = JSON.parse(raw); cart = parsed.cart || {}; discount = parsed.discount || {amount:0,type:null,code:null}; if(parsed.coupons){ Object.keys(parsed.coupons).forEach(k=>{ if(coupons[k]) coupons[k].uses = parsed.coupons[k].uses; }); } } }catch(e){ cart={}; discount={amount:0,type:null,code:null}; } }
+loadState();
+
+/* ---------- render products ---------- */
+function renderProducts(){
+  productContainer.innerHTML = '';
+  products.forEach(p=>{
+    tempQty[p.id] = 0;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="thumb"><img src="${p.img}" alt="${p.title}" data-id="${p.id}"></div>
+      <div class="title">${p.title}</div>
+      <div class="desc">${p.desc}</div>
+      <div class="price">S/ ${p.price.toFixed(2)}</div>
+      <div class="qty-box">
+        <button class="qty-btn" data-id="${p.id}" data-delta="-1">-</button>
+        <div class="qty-display" id="tmp-${p.id}">0</div>
+        <button class="qty-btn" data-id="${p.id}" data-delta="1">+</button>
+      </div>
+      <button class="add-btn" data-id="${p.id}" disabled>Añadir al carrito</button>
+    `;
+    productContainer.appendChild(card);
+  });
+
+  productContainer.querySelectorAll('.qty-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> {
+      const id = parseInt(btn.dataset.id,10);
+      changeTempQty(id, parseInt(btn.dataset.delta,10));
+    });
+  });
+
+  productContainer.querySelectorAll('.add-btn').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      const id = parseInt(btn.dataset.id,10);
+      const img = document.querySelector(`.thumb img[data-id="${id}"]`);
+      if(img) flyToCart(img);
+      addToCart(id);
+      btn.animate([{ transform:'scale(1)' }, { transform:'scale(.96)' }, { transform:'scale(1)' }], { duration:180 });
+    });
+  });
+}
+
+/* ---------- temp qty ---------- */
+function changeTempQty(id, delta){
+  tempQty[id] = Math.max(0, (tempQty[id]||0) + delta);
+  const tmp = document.getElementById(`tmp-${id}`);
+  if(tmp) tmp.textContent = tempQty[id];
+  const addBtn = document.querySelector(`.add-btn[data-id='${id}']`);
+  if(addBtn) addBtn.disabled = tempQty[id] <= 0;
+}
+
+/* ---------- cart ops ---------- */
+function addToCart(id){
+  const q = tempQty[id] || 0;
+  if(q <= 0) return;
+  cart[id] = (cart[id]||0) + q;
+  tempQty[id] = 0;
+  const tmp = document.getElementById(`tmp-${id}`);
+  if(tmp) tmp.textContent = '0';
+  const addBtn = document.querySelector(`.add-btn[data-id='${id}']`);
+  if(addBtn) addBtn.disabled = true;
+  updateCartUI();
+  saveState();
+}
+
+/* ---------- update cart UI ---------- */
+function updateCartUI(){
+  let total = 0, count = 0;
+  Object.keys(cart).forEach(id=>{
+    const p = products.find(x=>x.id == id);
+    if(p){
+      const q = cart[id];
+      total += p.price * q;
+      count += q;
+    }
+  });
+
+  // apply discount
+  if(discount && discount.amount){
+    if(discount.type === 'percent'){
+      total = total * (1 - discount.amount/100);
+    } else if(discount.type === 'fixed'){
+      total = Math.max(0, total - discount.amount);
+    }
+  }
+
+  cartCount.textContent = count;
+  cartTotalBadge.textContent = `S/ ${total.toFixed(2)}`;
+
+  // update Yape/Plin amounts
+  const yamt = document.getElementById('yapeAmt');
+  const pamt = document.getElementById('plinAmt');
+  if(yamt) yamt.textContent = `S/ ${total.toFixed(2)}`;
+  if(pamt) pamt.textContent = `S/ ${total.toFixed(2)}`;
+}
+
+/* ---------- open cart ---------- */
+cartBox.addEventListener('click', () => { renderModal(); modal.style.display = 'flex'; modal.setAttribute('aria-hidden','false'); });
+
+closeBtn.addEventListener('click', ()=>{ modal.style.display = 'none'; modal.setAttribute('aria-hidden','true'); });
+
+/* ---------- render modal ---------- */
+function renderModal(){
+  itemsEl.innerHTML = '';
+  let total = 0;
+
+  Object.keys(cart).forEach(id=>{
+    const p = products.find(x=>x.id == id);
+    if(!p) return;
+
+    const q = cart[id];
+    const row = document.createElement('div');
+    row.className = 'itemRow';
+    row.innerHTML = `
+      <div style="max-width:65%">
+        <b>${p.title}</b>
+        <div class="small">Unitario: S/ ${p.price.toFixed(2)}</div>
+      </div>
+      <div style="text-align:right; min-width:170px">
+        <div class="qty-inline">
+          <button class="qty-inline-btn" data-id="${id}" data-delta="-1">-</button>
+          <div style="min-width:36px;text-align:center;font-weight:700;color:#ffe2c2">${q}</div>
+          <button class="qty-inline-btn" data-id="${id}" data-delta="1">+</button>
+        </div>
+        <div style="margin-top:8px"><b>S/ ${(p.price*q).toFixed(2)}</b></div>
+        <div style="margin-top:8px"><button class="delBtn" data-id="${id}">❌ Eliminar</button></div>
+      </div>
+    `;
+    itemsEl.appendChild(row);
+
+    total += p.price * q;
+  });
+
+  // discount logic
+  if(discount.amount){
+    if(discount.type === 'percent'){
+      total = total * (1 - discount.amount/100);
+    } else if(discount.type === 'fixed'){
+      total = Math.max(0, total - discount.amount);
+    }
+  }
+
+  totalLine.textContent = `Total: S/ ${total.toFixed(2)}`;
+
+  // QR UPDATE
+  const yq = document.getElementById('yapeQR');
+  const pq = document.getElementById('plinQR');
+  if(yq) yq.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=YAPE-" + total.toFixed(2);
+  if(pq) pq.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PLIN-" + total.toFixed(2);
+
+  itemsEl.querySelectorAll('.qty-inline-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.id;
+      const delta = parseInt(btn.dataset.delta, 10);
+      cart[id] = Math.max(1, cart[id] + delta);
+      if(cart[id] <= 0) delete cart[id];
+      updateCartUI();
+      saveState();
+      renderModal();
+    });
+  });
+
+  itemsEl.querySelectorAll('.delBtn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      delete cart[btn.dataset.id];
+      updateCartUI();
+      saveState();
+      renderModal();
+    });
+  });
+}
+
+/* ---------- discount apply ---------- */
+applyDisc.addEventListener('click', ()=>{
+  const code = (discCode.value||'').trim().toUpperCase();
+  if(!coupons[code]){ showDisc(false,"Código inválido"); return; }
+
+  const c = coupons[code];
+
+  // usage check
+  if(c.uses !== null && c.uses <= 0){ showDisc(false,"Sin usos disponibles"); return; }
+
+  const today = new Date().toISOString().slice(0,10);
+  if(today > c.expires){ showDisc(false,"Cupón expirado"); return; }
+
+  discount = {
+    amount:c.value,
+    type:c.type,
+    code:code
+  };
+
+  if(c.uses !== null) c.uses--;
+
+  discCode.classList.add('success');
+  showDisc(true,"Cupón aplicado");
+  updateCartUI();
+  saveState();
+});
+
+function showDisc(ok,msg){
+  discMsg.textContent = msg;
+  discMsg.classList.remove('success','error');
+  discMsg.classList.add(ok ? 'success':'error');
+}
+
+/* ---------- confirm purchase: first layer ---------- */
+confirmYes.addEventListener('click', ()=>{
+  // show fire popup
+  fireConfirm.style.display='flex';
+  fireConfirm.setAttribute('aria-hidden','false');
+});
+
+confirmNo.addEventListener('click', ()=>{
+  // go to hacker screen
+  modal.style.display='none';
+  hackerScreen.style.display='flex';
+  hackerScreen.setAttribute('aria-hidden','false');
+  setTimeout(()=>{ hackerScreen.style.display='none'; hackerScreen.setAttribute('aria-hidden','true'); }, 2500);
+});
+
+/* ---------- fire popup buttons ---------- */
+fireNo.addEventListener('click', ()=>{
+  fireConfirm.style.display='none';
+  fireConfirm.setAttribute('aria-hidden','true');
+});
+
+fireYes.addEventListener('click', ()=>{
+  allowBuyNow = true;      // unlock
+  fireConfirm.style.display='none';
+  fireConfirm.setAttribute('aria-hidden','true');
+  showToast("✔ Compra confirmada. Ahora puedes enviar por WhatsApp.");
+
+  // enable button
+  buyNow.href = makeWA();
+});
+
+/* ---------- BUY NOW ---------- */
+buyNow.addEventListener('click', (e)=>{
+  if(!allowBuyNow){
+    e.preventDefault();
+    showToast("⚠ Primero confirma tu compra.");
+    return;
+  }
+  // proceed to WA
+  const url = makeWA();
+  if(url) window.location.href = url;
+});
+
+function makeWA(){
+  let txt = "Hola, deseo completar mi compra:%0A%0A";
+  Object.keys(cart).forEach(id=>{
+    const p = products.find(x=>x.id==id);
+    if(p){
+      txt += `• ${p.title} x${cart[id]} = S/ ${(p.price*cart[id]).toFixed(2)}%0A`;
+    }
+  });
+
+  let total = 0;
+  Object.keys(cart).forEach(id=>{
+    const p = products.find(x=>x.id==id);
+    if(p) total += p.price*cart[id];
+  });
+
+  if(discount.amount){
+    if(discount.type==='percent') total = total*(1-discount.amount/100);
+    else total = Math.max(0, total-discount.amount);
+  }
+
+  txt += `ATotal a pagar: S/ ${total.toFixed(2)}%0A`;
+  txt += "%0AEstoy listo para pagar. ✔";
+
+  return "https://wa.me/51959140971?text=" + encodeURIComponent(txt);
+}
+
+/* ---------- toast ---------- */
+function showToast(msg, ms=2200){
+  toastEl.textContent = msg;
+  toastEl.style.display = 'block';
+  setTimeout(()=>{ toastEl.style.opacity='1'; toastEl.style.transform='translateY(0)'; }, 10);
+  setTimeout(()=>{ toastEl.style.opacity='0'; toastEl.style.transform='translateY(16px)'; setTimeout(()=> toastEl.style.display='none', 350); }, ms);
+}
+
+/* ---------- fly to cart ---------- */
+function flyToCart(img){
+  try{
+    const rect = img.getBoundingClientRect();
+    const clone = img.cloneNode(true);
+    clone.style.position = 'fixed';
+    clone.style.left = rect.left + 'px';
+    clone.style.top = rect.top + 'px';
+    clone.style.width = rect.width + 'px';
+    clone.style.height = rect.height + 'px';
+    clone.style.zIndex = 999995;
+    clone.style.transition = 'all .7s cubic-bezier(.25,.46,.45,1)';
+    clone.style.pointerEvents = 'none';
+    flyRoot.appendChild(clone);
+
+    const end = cartBox.getBoundingClientRect();
+    requestAnimationFrame(()=>{
+      clone.style.left = (end.left + 8) + 'px';
+      clone.style.top = (end.top + 8) + 'px';
+      clone.style.width = '20px';
+      clone.style.height = '20px';
+      clone.style.opacity = '0.25';
+      clone.style.transform = 'scale(.2)';
+    });
+
+    setTimeout(()=>{ try{ flyRoot.removeChild(clone); }catch(e){} }, 700);
+  }catch(e){}
+}
+
+/* ---------- init ---------- */
+renderProducts();
+updateCartUI();
+
+// expose for debugging
+window.__SPH = { products, cart, coupons };
+
+</script>
+</body>
+</html>
